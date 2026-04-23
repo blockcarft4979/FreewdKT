@@ -1,0 +1,42 @@
+<resources>
+    <!-- App 基础信息 -->
+    <string name="app_name">Freewd 社区</string>
+    <string name="title_activity_post_details">帖子详情</string>
+
+    <!-- 登录/注册相关 -->
+    <string name="login_button_text">登录</string>
+    <string name="register_button_text">注册</string>
+    <string name="welcome_text">欢迎使用 Freewd 社区</string>
+    <string name="account_hint">请输入账号</string>
+    <string name="password_hint">请输入密码</string>
+    <string name="empty_password_account">账号或密码不能为空</string>
+    <string name="agree">我已阅读并同意《用户协议》</string>
+    <string name="please_agree">请先阅读并同意用户协议！</string>
+    <string name="agree_title">用户协议</string>
+    <string name="login_timeout">登录超时，请检查网络</string>
+
+    <!-- 通用提示 -->
+    <string name="yes">确定</string>
+    <string name="tips">提示</string>
+    <string name="network_error">网络出错</string>
+    <string name="loading_tip">正在加载...</string>
+    <string name="load_fail">网络加载失败</string>
+    <string name="empty_content">获取数据失败</string>
+    <string name="server_error">服务器错误：</string>
+    <string name="sever_return_empty_data">服务器返回空数据</string>
+    <string name="pulling_data">正在从服务器拉取数据......</string>
+    <string name="register_tips">点击了注册按钮</string>
+    <string name="please_login">请先完成登录！</string>
+    <string name="verify_failed">验证失败</string>
+
+    <!-- 帖子相关（重点完善） -->
+    <string name="post_new_post">发布新帖子</string>
+    <string name="ai_summary">AI 说</string>
+    <string name="comment">评论</string>
+    <string name="reply">回复 @</string>
+    <string name="menu">菜单</string>
+    <string name="freewd_uid">Freewd UID：</string>
+
+    <!-- 关于 -->
+    <string name="about">关于</string>
+</resources>

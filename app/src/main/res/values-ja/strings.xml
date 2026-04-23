@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">Freewd コミュニティ</string>
+    <string name="title_activity_post_details">投稿詳細</string>
+
+    <string name="login_button_text">ログイン</string>
+    <string name="register_button_text">登録</string>
+    <string name="welcome_text">Freewdコミュニティへようこそ</string>
+    <string name="account_hint">アカウントを入力してください</string>
+    <string name="password_hint">パスワードを入力してください</string>
+    <string name="empty_password_account">アカウントまたはパスワードを入力してください</string>
+    <string name="agree">利用規約を読み、同意しました</string>
+    <string name="please_agree">先に利用規約を読んで同意してください！</string>
+    <string name="agree_title">利用規約</string>
+    <string name="login_timeout">ログインがタイムアウトしました。ネットワークを確認してください</string>
+    <string name="please_login">まずログインしてください！</string>
+
+    <string name="yes">確定</string>
+    <string name="tips">ヒント</string>
+    <string name="network_error">ネットワークエラー</string>
+    <string name="loading_tip">読み込み中...</string>
+    <string name="load_fail">ネットワーク読み込み失敗</string>
+    <string name="empty_content">データの取得に失敗しました</string>
+    <string name="server_error">サーバーエラー: </string>
+    <string name="sever_return_empty_data">サーバーが空のデータを返しました</string>
+    <string name="pulling_data">サーバーからデータを取得中......</string>
+    <string name="register_tips">登録ボタンをクリックしました</string>
+    <string name="verify_failed">検証に失敗しました</string>
+
+    <string name="post_new_post">新しい投稿を作成</string>
+    <string name="ai_summary">AI のまとめ</string>
+    <string name="comment">コメント</string>
+    <string name="reply">@ に返信</string>
+    <string name="menu">メニュー</string>
+    <string name="freewd_uid">Freewd UID: </string>
+    <string name="about">について</string>
+</resources>

@@ -1,0 +1,21 @@
+#ifndef NATIVE_LIB_SECURITY_H
+#define NATIVE_LIB_SECURITY_H
+
+#include <string>
+
+
+static const unsigned char ENCRYPTED_API_URL[] = {
+        0xC2, 0xDE, 0xDE, 0xDA, 0xD9, 0x90, 0x85, 0x85, 0xCB, 0xDA, 0xDA, 0x84,
+        0xCC, 0xD8, 0xCF, 0xCF, 0xDD, 0xCE, 0x84, 0xDE, 0xC5, 0xDA, 0x85, 0xCB,
+        0xDA, 0xDA, 0x85, 0xCB, 0xDA, 0xC3, 0x85
+};
+
+static const size_t ENCRYPTED_API_URL_LEN = sizeof(ENCRYPTED_API_URL);
+
+// 2. 定义 XOR 加密的密钥 (可以使用任何单字节值)
+const char XOR_KEY = 0xAA;
+
+// 3. 声明解密函数，供 native-lib.cpp 调用
+std::string decrypt(const unsigned char *data, size_t len, char key);
+
+#endif //NATIVE_LIB_SECURITY_H

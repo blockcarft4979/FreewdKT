@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">Freewd Community</string>
+    <string name="title_activity_post_details">Post Details</string>
+
+    <string name="login_button_text">Login</string>
+    <string name="register_button_text">Register</string>
+    <string name="welcome_text">Welcome to Freewd Community</string>
+    <string name="account_hint">Please enter account</string>
+    <string name="password_hint">Please enter password</string>
+    <string name="empty_password_account">Account or password cannot be empty</string>
+    <string name="agree">I have read and agree to the User Agreement</string>
+    <string name="please_agree">Please read and agree to the User Agreement first!</string>
+    <string name="agree_title">User Agreement</string>
+    <string name="login_timeout">Login timeout, please check your network</string>
+    <string name="please_login">Please login first!</string>
+
+    <string name="yes">OK</string>
+    <string name="tips">Tips</string>
+    <string name="network_error">Network error</string>
+    <string name="loading_tip">Loading...</string>
+    <string name="load_fail">Network load failed</string>
+    <string name="empty_content">Failed to get data</string>
+    <string name="server_error">Server error: </string>
+    <string name="sever_return_empty_data">Server returned empty data</string>
+    <string name="pulling_data">Pulling data from server...</string>
+    <string name="register_tips">Clicked the register button</string>
+    <string name="verify_failed">Verification failed</string>
+
+    <string name="post_new_post">New Post</string>
+    <string name="ai_summary">AI Summary</string>
+    <string name="comment">Comments</string>
+    <string name="reply">Reply to @</string>
+    <string name="menu">Menu</string>
+    <string name="freewd_uid">Freewd UID: </string>
+    <string name="about">About</string>
+</resources>

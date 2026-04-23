@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">Freewd 커뮤니티</string>
+    <string name="title_activity_post_details">게시물 상세</string>
+
+    <string name="login_button_text">로그인</string>
+    <string name="register_button_text">회원가입</string>
+    <string name="welcome_text">Freewd 커뮤니티에 오신 것을 환영합니다</string>
+    <string name="account_hint">계정을 입력하세요</string>
+    <string name="password_hint">비밀번호를 입력하세요</string>
+    <string name="empty_password_account">계정 또는 비밀번호를 입력해야 합니다</string>
+    <string name="agree">사용자 약관을 읽고 동의합니다</string>
+    <string name="please_agree">먼저 사용자 약관을 읽고 동의해주세요!</string>
+    <string name="agree_title">사용자 약관</string>
+    <string name="login_timeout">로그인 시간 초과, 네트워크를 확인해주세요</string>
+    <string name="please_login">먼저 로그인해주세요!</string>
+
+    <string name="yes">확인</string>
+    <string name="tips">팁</string>
+    <string name="network_error">네트워크 오류</string>
+    <string name="loading_tip">로딩 중...</string>
+    <string name="load_fail">네트워크 로드 실패</string>
+    <string name="empty_content">데이터 가져오기 실패</string>
+    <string name="server_error">서버 오류: </string>
+    <string name="sever_return_empty_data">서버가 빈 데이터를 반환했습니다</string>
+    <string name="pulling_data">서버에서 데이터를 가져오는 중......</string>
+    <string name="register_tips">등록 버튼을 클릭했습니다</string>
+    <string name="verify_failed">인증 실패</string>
+
+    <string name="post_new_post">새 게시물 작성</string>
+    <string name="ai_summary">AI 요약</string>
+    <string name="comment">댓글</string>
+    <string name="reply">@ 에게 답글</string>
+    <string name="menu">메뉴</string>
+    <string name="freewd_uid">Freewd UID: </string>
+    <string name="about">정보</string>
+</resources>
