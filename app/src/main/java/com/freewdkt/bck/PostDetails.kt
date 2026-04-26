@@ -20,6 +20,7 @@ import com.freewdkt.bck.requestconstants.ApiConstants
 import com.freewdkt.bck.utils.formatRelativeTime
 import com.google.android.material.imageview.ShapeableImageView
 import io.noties.markwon.Markwon
+import io.noties.markwon.ext.tables.TablePlugin
 import io.noties.markwon.image.coil.CoilImagesPlugin
 
 class PostDetails : AppCompatActivity() {
@@ -28,8 +29,9 @@ class PostDetails : AppCompatActivity() {
     private lateinit var markwon: Markwon
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        super.onCreate(savedInstanceState)
+
         binding = ActivityPostDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
@@ -37,7 +39,9 @@ class PostDetails : AppCompatActivity() {
 
         // 初始化 Markwon 和适配器
         markwon = Markwon.builder(this)
-            .usePlugin(CoilImagesPlugin.create(this))
+            .usePlugin(TablePlugin.create(this))       // 启用表格渲染
+            //.usePlugin(RecyclerTablePlugin.create(this)) // 启用长表格支持
+            .usePlugin(CoilImagesPlugin.create(this)) // 启用您原有的 Coil 图片加载
             .build()
 
         replyAdapter = ReplyAdapter()

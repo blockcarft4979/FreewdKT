@@ -23,7 +23,7 @@ class PostRequest(private val context: Context) {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 //Log.d("woshiError",e.message.toString())
-                callback(null, context.getString(R.string.server_error))
+                callback(null, context.getString(R.string.server_error_with_code))
             }
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {

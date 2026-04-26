@@ -23,7 +23,7 @@
     <string name="loading_tip">正在加载...</string>
     <string name="load_fail">网络加载失败</string>
     <string name="empty_content">获取数据失败</string>
-    <string name="server_error">服务器错误：</string>
+    <string name="server_error">服务器错误</string>
     <string name="sever_return_empty_data">服务器返回空数据</string>
     <string name="pulling_data">正在从服务器拉取数据......</string>
     <string name="register_tips">点击了注册按钮</string>
@@ -39,4 +39,15 @@
 
     <!-- 其他 -->
     <string name="about">关于</string>
+    <string name="retry">重试</string>
+    <string name="cancel">取消</string>
+    <string name="post">发布</string>
+    <string name="select_img">选择图片</string>
+    <string name="add_img">选择图片</string>
+    <string name="post_tip">正文（支持 Markdown）</string>
+    <string name="post_help_text">支持 Markdown 语法，例如 **粗体**、*斜体*、[链接](url) 等</string>
+    <string name="title">标题</string>
+    <string name="additional_options">附加选项</string>
+    <string name="upload_success">上传成功</string>
+    <string name="upload_failed">上传失败</string>
 </resources>

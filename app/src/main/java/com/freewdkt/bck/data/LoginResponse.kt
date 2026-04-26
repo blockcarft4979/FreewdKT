@@ -91,10 +91,12 @@ fun verifyToken(context: Context, token : String?,callback: (isValid: Boolean, i
     client.newCall(request).enqueue(object : Callback {
 
         override fun onFailure(call: Call, e: IOException) {
+            //Log.d("woshiLog",e.message.toString())
             callback(false, true,null,context.getString(R.string.load_fail))
         }
 
         override fun onResponse(call: Call, response: Response) {
+            //Log.d("woshiLog2",response.message)
             if (response.isSuccessful) {
                 val json = response.body?.string()
                 if (json != null) {
@@ -102,9 +104,9 @@ fun verifyToken(context: Context, token : String?,callback: (isValid: Boolean, i
                     val status = obj.getString("status")
                     if (status == "success") {
                         val username = obj.getString("username")
-                        callback(true,false, null,obj.getString("username"))
+                        callback(true, false, username, null)
                     } else {
-                        callback(false,false,null,obj.optString("msg"))
+                        callback(false, false, null, obj.optString("msg"))
                     }
                 } else {
                     callback(false,false,null, context.getString(R.string.empty_content))

@@ -1,4 +1,5 @@
 <resources>
+
     <style name="Theme.FreewdKT" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:statusBarColor">#5A7599</item>
         <item name="colorPrimary">#5A7599</item>

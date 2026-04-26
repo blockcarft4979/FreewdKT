@@ -20,8 +20,8 @@ android {
         applicationId = "com.freewdkt.bck"
         minSdk = 26
         targetSdk = 35
-        versionCode = 105
-        versionName = "1.0.5"
+        versionCode = 106
+        versionName = "1.0.6"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -51,6 +51,8 @@ android {
 }
 
 dependencies {
+    implementation("io.noties.markwon:ext-tables:4.6.2")
+    implementation("io.noties.markwon:recycler-table:4.6.2")
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("androidx.recyclerview:recyclerview:1.3.0")
     implementation("androidx.security:security-crypto:1.1.0-alpha06")

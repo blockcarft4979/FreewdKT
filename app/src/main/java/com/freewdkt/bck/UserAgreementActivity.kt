@@ -1,48 +1,49 @@
 package com.freewdkt.bck
 
 import android.os.Bundle
-import androidx.activity.ComponentDialog
+import android.view.View
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.freewdkt.bck.databinding.ActivityMainBinding
 import com.freewdkt.bck.databinding.ActivityUserAgreementBinding
 import com.freewdkt.bck.requestconstants.ApiConstants
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import io.noties.markwon.Markwon
-import okhttp3.Request
+import io.noties.markwon.ext.tables.TablePlugin
+import io.noties.markwon.image.coil.CoilImagesPlugin
 import okhttp3.Call
 import okhttp3.Callback
+import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
-
 
 class UserAgreementActivity : AppCompatActivity() {
     val client = okhttp3.OkHttpClient()
     private lateinit var binding: ActivityUserAgreementBinding
-    private lateinit var loadingDialog: AlertDialog
+
+    private lateinit var markwon: Markwon
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         binding = ActivityUserAgreementBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val dialogLoading = layoutInflater.inflate(R.layout.dialog_loading,null)
-            loadingDialog = MaterialAlertDialogBuilder(this)
-                .setView(dialogLoading)
-                .create()
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-        loadingDialog.show()
+
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        // 先初始化 Markwon（表格+图片插件）
+        markwon = Markwon.builder(this)
+            .usePlugin(TablePlugin.create(this))
+            .usePlugin(CoilImagesPlugin.create(this))
+            .build()
+
         fetchUserAgreement()
     }
 
     private fun fetchUserAgreement() {
+        binding.loadingProgress.visibility = View.VISIBLE
         val request = Request.Builder()
             .url(ApiConstants.USER_AGREEMENT)
             .build()
@@ -51,8 +52,13 @@ class UserAgreementActivity : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
                 runOnUiThread {
-                   loadingDialog.dismiss()
-                    binding.userAgreementText.text = getString(R.string.load_fail)
+                    binding.loadingProgress.visibility = View.GONE
+                    Snackbar.make(binding.root, getString(R.string.load_fail), Snackbar.LENGTH_INDEFINITE)
+                        .setAction(getString(R.string.retry)) {
+                            fetchUserAgreement()
+                            binding.loadingProgress.visibility = View.VISIBLE
+                        }
+                        .show()
                 }
             }
 
@@ -60,19 +66,22 @@ class UserAgreementActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val markdownText = response.body?.string() ?: ""
                     runOnUiThread {
-                        loadingDialog.dismiss()
-                        val markwon = Markwon.create(applicationContext)
+                        binding.loadingProgress.visibility = View.GONE
                         markwon.setMarkdown(binding.userAgreementText, markdownText)
                     }
                 } else {
                     runOnUiThread {
-                        loadingDialog.dismiss()
-                        binding.userAgreementText.text = "${getString(R.string.server_error)} ${response.code}"
-
+                        binding.loadingProgress.visibility = View.GONE
+                        binding.userAgreementText.text =
+                            getString(R.string.server_error_with_code, response.code)
                     }
                 }
             }
         })
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
+    }
 }

@@ -58,7 +58,7 @@ class ZoneAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ZoneViewHolder) {
-            holder.bind(zones[position - 1])  // 注意位置偏移
+            holder.bind(zones[position - 1])
         }
     }
 

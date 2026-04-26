@@ -48,7 +48,9 @@ class SessionManager(private val context: Context) {
     fun getQq(): String? = sharedPreferences.getString("qq",null)
     // 判断是否已登录
     fun isLoggedIn(): Boolean = getToken() != null
-
+    fun updateXp(xp: String){
+        sharedPreferences.edit().putString("xp",xp).apply()
+    }
     fun updateUsername(newUsername: String) {
         sharedPreferences.edit().putString("username", newUsername).apply()
     }
@@ -56,4 +58,5 @@ class SessionManager(private val context: Context) {
     fun clear() {
         sharedPreferences.edit().clear().apply()
     }
+
 }

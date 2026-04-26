@@ -30,7 +30,7 @@ class RequestData(private val context: Context) {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 if (cached == null) {
-                    callback(null, context.getString(R.string.server_error))
+                    callback(null, context.getString(R.string.server_error_with_code))
                 }
             }
 

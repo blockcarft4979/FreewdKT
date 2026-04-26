@@ -7,6 +7,14 @@
     android:fitsSystemWindows="true"
     tools:context=".PostList">
 
+    <ProgressBar
+        android:id="@+id/loadingProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:indeterminateTint="@color/Theme" />
+
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,7 +24,6 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:titleCentered="true"
             app:title="@string/app_name" />
 
     </com.google.android.material.appbar.AppBarLayout>
