@@ -4,8 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,13 +22,24 @@ class PostList : AppCompatActivity() {
     private lateinit var binding: ActivityPostListBinding
     private lateinit var adapter: PostAdapter
     private lateinit var concatAdapter: ConcatAdapter
+    private lateinit var recyclerView: RecyclerView
     private val loadingFooter = LoadingFooterAdapter()
     private var currentPage = 1
     private var isLoading = false
     private var hasMore = true
     private val limit = 12
-    override fun onCreate(savedInstanceState: Bundle?) {
+    private var zoneId: String = "1"
 
+    private val createPostLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            currentPage = 1
+            hasMore = true
+            adapter.submitList(emptyList())
+            fetchPosts(zoneId, currentPage)
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
@@ -37,24 +48,21 @@ class PostList : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        val zoneId = intent.getStringExtra("zoneId") ?: "1"
 
-        // 初始化 RecyclerView
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        zoneId = intent.getStringExtra("zoneId") ?: "1"
+
+        recyclerView = findViewById(R.id.recyclerView)
         adapter = PostAdapter()
         concatAdapter = ConcatAdapter(adapter)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = concatAdapter
 
-        //列表框事件
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                if (dy > 0) {
-                    binding.fab.hide()
-                } else if (dy < 0) {
-                    binding.fab.show()
-                }
+                if (dy > 0) binding.fab.hide()
+                else if (dy < 0) binding.fab.show()
+
                 val layoutManager = recyclerView.layoutManager as LinearLayoutManager
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                 val totalItemCount = adapter.itemCount
@@ -64,8 +72,9 @@ class PostList : AppCompatActivity() {
                 }
             }
         })
-        // 加载帖子数据
+
         fetchPosts(zoneId, currentPage)
+
         adapter.onItemClick = { post ->
             val intent = Intent(this, PostDetails::class.java).apply {
                 putExtra("filename", post.link)
@@ -74,12 +83,12 @@ class PostList : AppCompatActivity() {
             }
             startActivity(intent)
         }
-        // 悬浮按钮点击事件
+
         binding.fab.setOnClickListener {
-            var intent = Intent(this, CreatePostActivity::class.java).apply {
-                putExtra("zoneId",zoneId)
+            val intent = Intent(this, CreatePostActivity::class.java).apply {
+                putExtra("zoneId", zoneId)
             }
-            startActivity(intent)
+            createPostLauncher.launch(intent)
         }
     }
 
@@ -88,30 +97,26 @@ class PostList : AppCompatActivity() {
         return true
     }
 
-
-
     private fun fetchPosts(zoneId: String, page: Int) {
         if (isLoading || !hasMore) return
         isLoading = true
 
-        //首次加载（page == 1）时显示中央进度条
         if (page == 1) {
             binding.loadingProgress.visibility = View.VISIBLE
-        }else {
+        } else {
             if (concatAdapter.adapters.size == 1) {
                 concatAdapter.addAdapter(loadingFooter)
             }
         }
+
         val request = PostRequest(applicationContext)
         request.fetchPosts(zoneId, page, limit) { posts, error ->
             runOnUiThread {
                 isLoading = false
 
-                // 仅在首次加载时隐藏中央进度条
                 if (page == 1) {
                     binding.loadingProgress.visibility = View.GONE
                 }
-
                 if (concatAdapter.adapters.size > 1) {
                     concatAdapter.removeAdapter(loadingFooter)
                 }
@@ -138,5 +143,4 @@ class PostList : AppCompatActivity() {
             }
         }
     }
-
 }

@@ -20,7 +20,7 @@
     <string name="loading_tip">로딩 중...</string>
     <string name="load_fail">네트워크 로드 실패</string>
     <string name="empty_content">데이터 가져오기 실패</string>
-    <string name="server_error">서버 오류: </string>
+    <string name="server_error">서버 오류</string>
     <string name="sever_return_empty_data">서버가 빈 데이터를 반환했습니다</string>
     <string name="pulling_data">서버에서 데이터를 가져오는 중......</string>
     <string name="register_tips">등록 버튼을 클릭했습니다</string>

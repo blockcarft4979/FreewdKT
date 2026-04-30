@@ -23,7 +23,29 @@
             android:exported="false" />
         <activity
             android:name=".PostDetails"
-            android:exported="false" />
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="f2.freewd.top"
+                    android:pathPrefix="/u/pages.html"
+                    android:scheme="https" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="freewd"
+                    android:host="open_post"
+                    android:pathPrefix="/path" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".PostList"
             android:exported="false" />

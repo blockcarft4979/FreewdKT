@@ -69,6 +69,7 @@ class PublishRequest(private val context: Context) {
     data class PublishResponse(
         val status: String,
         val msg: String? = null,
+        val post: String? = "-1",
         val xp: Int? = null,
         val level: Int? = null
     )

@@ -7,5 +7,5 @@
     android:layout_marginLeft="15dp"
     android:layout_marginRight="15dp"
     android:layout_marginTop="8dp"
-    android:src="@color/icon_background"
+    android:src="?attr/colorPrimary"
     app:shapeAppearanceOverlay="@style/RoundedImageView" />

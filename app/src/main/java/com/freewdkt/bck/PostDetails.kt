@@ -17,6 +17,7 @@ import com.freewdkt.bck.data.PostDetail
 import com.freewdkt.bck.data.PostDetailRequest
 import com.freewdkt.bck.databinding.ActivityPostDetailsBinding
 import com.freewdkt.bck.requestconstants.ApiConstants
+import com.freewdkt.bck.requestconstants.PrivateApi
 import com.freewdkt.bck.utils.formatRelativeTime
 import com.google.android.material.imageview.ShapeableImageView
 import io.noties.markwon.Markwon
@@ -39,9 +40,9 @@ class PostDetails : AppCompatActivity() {
 
         // 初始化 Markwon 和适配器
         markwon = Markwon.builder(this)
-            .usePlugin(TablePlugin.create(this))       // 启用表格渲染
-            //.usePlugin(RecyclerTablePlugin.create(this)) // 启用长表格支持
-            .usePlugin(CoilImagesPlugin.create(this)) // 启用您原有的 Coil 图片加载
+            .usePlugin(TablePlugin.create(this))
+            //.usePlugin(RecyclerTablePlugin.create(this))
+            .usePlugin(CoilImagesPlugin.create(this))
             .build()
 
         replyAdapter = ReplyAdapter()
@@ -49,17 +50,32 @@ class PostDetails : AppCompatActivity() {
         binding.recyclerView.adapter = replyAdapter
 
         // 获取参数
-        val url = intent.getStringExtra("url") ?: ApiConstants.POST_EEROR
+        val url = getPostUrl(intent) ?: return
         val zoneId = intent.getStringExtra("zone") ?: "1"
         val filename = intent.getStringExtra("filename") ?: ""
 
         // 加载数据
         binding.loadingProgress.visibility = View.VISIBLE
+        //Log.d("woshiUrl", getPostUrl(intent) ?: return)
         PostDetailRequest(applicationContext).fetchPostDetail(url) { detail, error ->
             runOnUiThread {
                 binding.loadingProgress.visibility = View.GONE
                 if (error != null) {
-                    Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
+                    val fallbackUrl = ApiConstants.POST_ERROR
+                    if (url != fallbackUrl) {
+                        PostDetailRequest(applicationContext).fetchPostDetail(fallbackUrl) { fallbackDetail, fallbackError ->
+                            runOnUiThread {
+                                if (fallbackError == null && fallbackDetail != null) {
+                                    binding.postView.visibility = View.VISIBLE
+                                    bindDetail(fallbackDetail)
+                                } else {
+                                    Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    } else {
+                        Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
+                    }
                 } else if (detail != null) {
                     binding.postView.visibility = View.VISIBLE
                     bindDetail(detail)
@@ -70,8 +86,8 @@ class PostDetails : AppCompatActivity() {
         // 悬浮按钮
         binding.fab.setOnClickListener {
             val postUrl = "freewd://open_post/path?filename=$filename&zone=$zoneId"
-            Log.d("woshipostUrl", postUrl)
-            Toast.makeText(this, "正在启动原版Free社区", Toast.LENGTH_SHORT).show()
+            //Log.d("woshipostUrl", postUrl)
+            Toast.makeText(this, "正在启动原版Freewd社区", Toast.LENGTH_SHORT).show()
             try {
                 openDeepLink(postUrl)
             } catch (e: Exception) {
@@ -90,7 +106,47 @@ class PostDetails : AppCompatActivity() {
         startActivity(intent)
     }
 
+    private fun getPostUrl(intent: Intent): String? {
+        if (intent.action == Intent.ACTION_VIEW) {
+            val uri = intent.data
+            if (uri != null) {
+
+                if (uri.scheme == "https" && uri.host == "f2.freewd.top") {
+                    val filename = uri.getQueryParameter("filename")
+                    val zone = uri.getQueryParameter("zone")
+                    if (filename != null && zone != null) {
+                        if (!MyApplication.sessionManager.isLoggedIn()) {
+                            Toast.makeText(this, R.string.please_login, Toast.LENGTH_SHORT).show()
+                            startActivity(Intent(this, MainActivity::class.java))
+                            finish()
+                            return null
+                        }
+                        return PrivateApi.postDetailUrl(filename, zone)
+                    }
+                }
+
+                else if (uri.scheme == "freewd" && uri.host == "open_post" && uri.path == "/path") {
+                    val filename = uri.getQueryParameter("filename")
+                    val zone = uri.getQueryParameter("zone")
+                    if (filename != null && zone != null) {
+                        if (!MyApplication.sessionManager.isLoggedIn()) {
+                            Toast.makeText(this, R.string.please_login, Toast.LENGTH_SHORT).show()
+                            startActivity(Intent(this, MainActivity::class.java))
+                            finish()
+                            return null
+                        }
+                        return PrivateApi.postDetailUrl(filename, zone)
+                    }
+                }
+            }
+        }
+        // 普通 Intent 传参
+        val url = intent.getStringExtra("url")?.takeIf { it.isNotBlank() } ?: ApiConstants.POST_ERROR
+        return if (url.startsWith("http://") || url.startsWith("https://")) url else null
+    }
+
     private fun bindDetail(detail: PostDetail) {
+        binding.postView.visibility = View.VISIBLE
         // 头像
         val avatarUrl = detail.qq?.let { ApiConstants.userIcon(it) } ?: ""
         binding.avatar.load(avatarUrl) {

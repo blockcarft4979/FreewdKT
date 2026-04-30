@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.freewdkt.bck.data.PublishRequest
 import com.freewdkt.bck.databinding.ActivityCreatePostBinding
+import com.google.gson.Gson
 
 class CreatePostActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCreatePostBinding
@@ -28,11 +29,11 @@ class CreatePostActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            val zoneId = intent.getIntExtra("zone", 1)  // 从跳转传入
+            val zoneId = intent.getIntExtra("zoneId", 1)  // 从跳转传入
             val token = MyApplication.sessionManager.getToken() ?: ""
             if (token.isEmpty()) {
                 Toast.makeText(this, getString(R.string.please_login), Toast.LENGTH_SHORT).show()
-                var intent = Intent(this, MainActivity::class.java)
+                val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
                 return@setOnClickListener
             }
@@ -40,18 +41,32 @@ class CreatePostActivity : AppCompatActivity() {
             // 显示进度条
             binding.progressBar.visibility = View.VISIBLE
             binding.btnPublish.isEnabled = false
+            binding.scrollView.visibility = View.INVISIBLE
 
             val request = PublishRequest(applicationContext)
-            request.publish(zoneId, title, content, selectedImageUrl, token) { success, msg, xp, level ->
+            request.publish(
+                zoneId,
+                title,
+                content,
+                selectedImageUrl,
+                token
+            ) { success, msg, xp, level ->
                 runOnUiThread {
                     binding.progressBar.visibility = View.GONE
                     binding.btnPublish.isEnabled = true
                     if (success) {
-                        Toast.makeText(this,getString(R.string.upload_succeed), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, getString(R.string.upload_succeed), Toast.LENGTH_SHORT)
+                            .show()
                         //xp?.let { MyApplication.sessionManager.updateXp(it) }
+                        setResult(RESULT_OK)
                         finish()
                     } else {
-                        Toast.makeText(this, msg ?: getString(R.string.upload_failed), Toast.LENGTH_SHORT).show()
+                        binding.scrollView.visibility = View.VISIBLE
+                        Toast.makeText(
+                            this,
+                            msg ?: getString(R.string.upload_failed),
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
@@ -70,4 +85,6 @@ class CreatePostActivity : AppCompatActivity() {
         finish()
         return true
     }
+
+
 }

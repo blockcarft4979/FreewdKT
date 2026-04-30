@@ -20,7 +20,7 @@
     <string name="loading_tip">Loading...</string>
     <string name="load_fail">Network load failed</string>
     <string name="empty_content">Failed to get data</string>
-    <string name="server_error">Server error: </string>
+    <string name="server_error">Server error</string>
     <string name="sever_return_empty_data">Server returned empty data</string>
     <string name="pulling_data">Pulling data from server...</string>
     <string name="register_tips">Clicked the register button</string>

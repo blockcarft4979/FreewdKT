@@ -20,7 +20,7 @@
     <string name="loading_tip">読み込み中...</string>
     <string name="load_fail">ネットワーク読み込み失敗</string>
     <string name="empty_content">データの取得に失敗しました</string>
-    <string name="server_error">サーバーエラー: </string>
+    <string name="server_error">サーバーエラー</string>
     <string name="sever_return_empty_data">サーバーが空のデータを返しました</string>
     <string name="pulling_data">サーバーからデータを取得中......</string>
     <string name="register_tips">登録ボタンをクリックしました</string>

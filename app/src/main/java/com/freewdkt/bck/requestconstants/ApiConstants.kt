@@ -7,7 +7,7 @@ object ApiConstants {
     const val USER_AGREEMENT = "${BASE_URL}documents/user_agreement.txt"
     const val UPLOAD_IMG = "https://photo.freewd.top/"
     const val ZONE_DATA = "$BASE_REQUEST_URL/zone.json"
-    const val POST_EEROR = "$BASE_REQUEST_URL/error.json"
+    const val POST_ERROR = "$BASE_REQUEST_URL/error.json"
     fun userIcon(id: String): String {
         return "https://q.qlogo.cn/headimg_dl?dst_uin=${id}&spec=100"
     }
