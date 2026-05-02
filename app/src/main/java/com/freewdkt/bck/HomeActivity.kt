@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import coil.load
+import com.bumptech.glide.Glide
 import com.freewdkt.bck.adapter.ZoneAdapter
 import com.freewdkt.bck.data.RequestData
 import com.freewdkt.bck.data.verifyToken
@@ -56,7 +56,10 @@ class HomeActivity : AppCompatActivity() {
 
         binding.userUid.text = userUid
         binding.userName.text = userName
-        binding.userIcon.load(userIcon)
+        Glide.with(binding.userIcon)
+            .load(userIcon)
+            .into(binding.userIcon)
+        //binding.userIcon.load(userIcon)
 
         // 验证 Token
         verifyToken(this, token) { isValid, isNetworkError, username, msg ->

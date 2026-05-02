@@ -3,31 +3,43 @@ package com.freewdkt.bck
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.View
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import coil.load
-import coil.transform.RoundedCornersTransformation
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.freewdkt.bck.adapter.ReplyAdapter
 import com.freewdkt.bck.data.PostDetail
 import com.freewdkt.bck.data.PostDetailRequest
+import com.freewdkt.bck.data.Reply
+import com.freewdkt.bck.data.SendCommentRequest
 import com.freewdkt.bck.databinding.ActivityPostDetailsBinding
 import com.freewdkt.bck.requestconstants.ApiConstants
 import com.freewdkt.bck.requestconstants.PrivateApi
 import com.freewdkt.bck.utils.formatRelativeTime
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.imageview.ShapeableImageView
 import io.noties.markwon.Markwon
 import io.noties.markwon.ext.tables.TablePlugin
-import io.noties.markwon.image.coil.CoilImagesPlugin
+import io.noties.markwon.image.glide.GlideImagesPlugin
+import java.text.SimpleDateFormat
+import java.util.*
 
 class PostDetails : AppCompatActivity() {
     private lateinit var binding: ActivityPostDetailsBinding
     private lateinit var replyAdapter: ReplyAdapter
     private lateinit var markwon: Markwon
+
+    // 成员变量，供评论时使用
+    private lateinit var currentUrl: String
+    private var zoneId: String = "1"
+    private var filename: String = ""
+    private var currentDetail: PostDetail? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -38,61 +50,26 @@ class PostDetails : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        // 初始化 Markwon 和适配器
         markwon = Markwon.builder(this)
             .usePlugin(TablePlugin.create(this))
-            //.usePlugin(RecyclerTablePlugin.create(this))
-            .usePlugin(CoilImagesPlugin.create(this))
+            .usePlugin(GlideImagesPlugin.create(this))
             .build()
 
         replyAdapter = ReplyAdapter()
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = replyAdapter
 
-        // 获取参数
-        val url = getPostUrl(intent) ?: return
-        val zoneId = intent.getStringExtra("zone") ?: "1"
-        val filename = intent.getStringExtra("filename") ?: ""
+        // 从 Intent 获取必要参数并保存
+        currentUrl = getPostUrl(intent) ?: return
+        zoneId = intent.getStringExtra("zone") ?: "1"
+        filename = intent.getStringExtra("filename") ?: ""
 
-        // 加载数据
-        binding.loadingProgress.visibility = View.VISIBLE
-        //Log.d("woshiUrl", getPostUrl(intent) ?: return)
-        PostDetailRequest(applicationContext).fetchPostDetail(url) { detail, error ->
-            runOnUiThread {
-                binding.loadingProgress.visibility = View.GONE
-                if (error != null) {
-                    val fallbackUrl = ApiConstants.POST_ERROR
-                    if (url != fallbackUrl) {
-                        PostDetailRequest(applicationContext).fetchPostDetail(fallbackUrl) { fallbackDetail, fallbackError ->
-                            runOnUiThread {
-                                if (fallbackError == null && fallbackDetail != null) {
-                                    binding.postView.visibility = View.VISIBLE
-                                    bindDetail(fallbackDetail)
-                                } else {
-                                    Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }
-                    } else {
-                        Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
-                    }
-                } else if (detail != null) {
-                    binding.postView.visibility = View.VISIBLE
-                    bindDetail(detail)
-                }
-            }
-        }
+        // 加载详情
+        loadPostDetail(currentUrl)
 
-        // 悬浮按钮
+        // 悬浮按钮点击 → 发表评论
         binding.fab.setOnClickListener {
-            val postUrl = "freewd://open_post/path?filename=$filename&zone=$zoneId"
-            //Log.d("woshipostUrl", postUrl)
-            Toast.makeText(this, "正在启动原版Freewd社区", Toast.LENGTH_SHORT).show()
-            try {
-                openDeepLink(postUrl)
-            } catch (e: Exception) {
-                Toast.makeText(this, "打开失败${e.message}", Toast.LENGTH_SHORT).show()
-            }
+            showCommentDialog()
         }
     }
 
@@ -101,16 +78,13 @@ class PostDetails : AppCompatActivity() {
         return true
     }
 
-    private fun openDeepLink(deepLink: String) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink))
-        startActivity(intent)
-    }
-
+    /**
+     * 根据启动的 Intent 解析出最终的详情 URL（支持 Deep Link 和普通 Intent）
+     */
     private fun getPostUrl(intent: Intent): String? {
         if (intent.action == Intent.ACTION_VIEW) {
             val uri = intent.data
             if (uri != null) {
-
                 if (uri.scheme == "https" && uri.host == "f2.freewd.top") {
                     val filename = uri.getQueryParameter("filename")
                     val zone = uri.getQueryParameter("zone")
@@ -123,9 +97,7 @@ class PostDetails : AppCompatActivity() {
                         }
                         return PrivateApi.postDetailUrl(filename, zone)
                     }
-                }
-
-                else if (uri.scheme == "freewd" && uri.host == "open_post" && uri.path == "/path") {
+                } else if (uri.scheme == "freewd" && uri.host == "open_post" && uri.path == "/path") {
                     val filename = uri.getQueryParameter("filename")
                     val zone = uri.getQueryParameter("zone")
                     if (filename != null && zone != null) {
@@ -140,20 +112,46 @@ class PostDetails : AppCompatActivity() {
                 }
             }
         }
-        // 普通 Intent 传参
         val url = intent.getStringExtra("url")?.takeIf { it.isNotBlank() } ?: ApiConstants.POST_ERROR
         return if (url.startsWith("http://") || url.startsWith("https://")) url else null
     }
 
+    /**
+     * 加载帖子详情（支持 fallback 备用数据）
+     */
+    private fun loadPostDetail(url: String) {
+        binding.loadingProgress.visibility = View.VISIBLE
+        PostDetailRequest(applicationContext).fetchPostDetail(url) { detail, error ->
+            runOnUiThread {
+                binding.loadingProgress.visibility = View.GONE
+                if (error != null) {
+                    val fallbackUrl = ApiConstants.POST_ERROR
+                    if (url != fallbackUrl) {
+                        loadPostDetail(fallbackUrl)
+                    } else {
+                        Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
+                    }
+                } else if (detail != null) {
+                    binding.postView.visibility = View.VISIBLE
+                    currentDetail = detail          // 保存详情供评论插入使用
+                    bindDetail(detail)
+                }
+            }
+        }
+    }
+
+    /**
+     * 将数据绑定到 UI
+     */
     private fun bindDetail(detail: PostDetail) {
         binding.postView.visibility = View.VISIBLE
+
         // 头像
         val avatarUrl = detail.qq?.let { ApiConstants.userIcon(it) } ?: ""
-        binding.avatar.load(avatarUrl) {
-            transformations(RoundedCornersTransformation(16f))
-            placeholder(R.mipmap.icon)
-            error(R.mipmap.icon)
-        }
+        Glide.with(binding.avatar)
+            .load(avatarUrl)
+            .error(R.mipmap.icon)
+            .into(binding.avatar)
 
         // 标题
         if (!detail.title.isNullOrBlank()) {
@@ -163,7 +161,7 @@ class PostDetails : AppCompatActivity() {
             binding.title.visibility = View.GONE
         }
 
-        // 正文
+        // 正文（支持 Markdown）
         val message = detail.msg ?: ""
         if (detail.isMarkdown) {
             markwon.setMarkdown(binding.content, message)
@@ -171,7 +169,6 @@ class PostDetails : AppCompatActivity() {
             binding.content.text = message
         }
 
-        // 作者、日期、点赞数
         binding.username.text = detail.username
         binding.date.text = formatRelativeTime(detail.date)
         binding.likeCount.text = detail.likeCount
@@ -184,18 +181,25 @@ class PostDetails : AppCompatActivity() {
             binding.aiSummaryContainer.visibility = View.GONE
         }
 
-        // 图片
+        // 图片列表
         val imgList = detail.imageList
         if (imgList.isNotEmpty()) {
             binding.imageScroll.visibility = View.VISIBLE
             binding.imagesContainer.removeAllViews()
             imgList.forEach { imageUrl ->
                 val imageView = ShapeableImageView(this).apply {
-                    layoutParams = LinearLayout.LayoutParams(200.dpToPx(), 200.dpToPx()).apply {
+                    layoutParams = LinearLayout.LayoutParams(240.dpToPx(), 200.dpToPx()).apply {
                         marginEnd = 8.dpToPx()
                     }
-                    load(imageUrl) {
-                        transformations(RoundedCornersTransformation(8f))
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                    Glide.with(this@PostDetails)
+                        .load(imageUrl)
+                        .transform(RoundedCorners(8.dpToPx()))
+                        .placeholder(R.mipmap.icon)
+                        .error(R.mipmap.icon)
+                        .into(this)
+                    setOnClickListener {
+                        showImagePreview(imageUrl)
                     }
                 }
                 binding.imagesContainer.addView(imageView)
@@ -204,8 +208,81 @@ class PostDetails : AppCompatActivity() {
             binding.imageScroll.visibility = View.GONE
         }
 
-        // 评论
+        // 评论列表
         replyAdapter.submitList(detail.reply)
+    }
+
+    /**
+     * 全屏查看图片（启动独立的 PictureView Activity）
+     */
+    private fun showImagePreview(imageUrl: String) {
+        val intent = Intent(this, PictureView::class.java).apply {
+            putExtra("imgUrl", imageUrl)
+        }
+        startActivity(intent)
+    }
+
+    /**
+     * 弹出评论对话框，发送成功后直接插入新评论到列表顶部
+     */
+    private fun showCommentDialog() {
+        val editText = EditText(this)
+        editText.hint = "输入评论"
+        MaterialAlertDialogBuilder(this)
+            .setTitle("发表评论")
+            .setView(editText)
+            .setPositiveButton("发送") { _, _ ->
+                val content = editText.text.toString().trim()
+                if (content.isEmpty()) {
+                    Toast.makeText(this, "评论不能为空", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                val token = MyApplication.sessionManager.getToken()
+                if (token.isNullOrEmpty()) {
+                    Toast.makeText(this, R.string.please_login, Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, MainActivity::class.java))
+                    return@setPositiveButton
+                }
+
+                SendCommentRequest(applicationContext).sendComment(
+                    fileName = filename,
+                    zone = zoneId.toInt(),
+                    content = content,
+                    replyTo = null,
+                    token = token
+                ) { success, msg ->
+                    runOnUiThread {
+                        if (success) {
+                            Toast.makeText(this, "评论成功", Toast.LENGTH_SHORT).show()
+                            // 构造新评论对象
+                            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                            val now = sdf.format(Date())
+                            val currentQQ = MyApplication.sessionManager.getQq() ?: ""
+                            val currentName = MyApplication.sessionManager.getUsername() ?: currentQQ
+                            val newReply = Reply(
+                                qq = currentQQ,
+                                date = now,
+                                content = content,
+                                username = currentName,
+                                trueQq = currentQQ,
+                                reply = null
+                            )
+                            // 获取当前评论列表并插入头部
+                            val oldList = currentDetail?.reply?.toMutableList() ?: mutableListOf()
+                            oldList.add(0, newReply)
+                            replyAdapter.submitList(oldList)
+                            // 滑动到顶部显示新评论
+                            binding.recyclerView.smoothScrollToPosition(0)
+                            // 可选：更新 currentDetail 中的 reply 列表，保持一致性
+                            currentDetail = currentDetail?.copy(reply = oldList)
+                        } else {
+                            Toast.makeText(this, msg ?: "评论失败", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+            .setNegativeButton("取消", null)
+            .show()
     }
 
     private fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()

@@ -7,8 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
-import coil.transform.RoundedCornersTransformation
+import com.bumptech.glide.Glide
 import com.freewdkt.bck.R
 import com.freewdkt.bck.data.Reply
 import com.freewdkt.bck.requestconstants.ApiConstants
@@ -38,11 +37,9 @@ class ReplyAdapter : ListAdapter<Reply, ReplyAdapter.ViewHolder>(ReplyDiffCallba
             contentTv.text = reply.content
 
             val avatarUrl = reply.qq?.let { ApiConstants.userIcon(it) } ?: ""
-            replyAvatar.load(avatarUrl) {
-                transformations(RoundedCornersTransformation(16f))
-                placeholder(R.mipmap.icon)
-                error(R.mipmap.icon)
-            }
+            Glide.with(replyAvatar)
+                .load(avatarUrl)
+                .into(replyAvatar)
         }
     }
 }

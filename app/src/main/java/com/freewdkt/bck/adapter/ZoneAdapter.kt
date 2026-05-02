@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
+import com.bumptech.glide.Glide
 import com.freewdkt.bck.R
 import com.freewdkt.bck.data.ZoneItem
 import com.freewdkt.bck.databinding.ItemZoneBinding
@@ -70,7 +70,9 @@ class ZoneAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             binding.zoneName.text = zone.name
             binding.zoneDesc.text = zone.description ?: ""
             val iconUrl = ApiConstants.BASE_URL + (zone.icon ?: "")
-            binding.zoneIcon.load(iconUrl)
+            Glide.with(binding.zoneIcon)
+                .load(iconUrl)
+                .into(binding.zoneIcon)
             binding.root.setOnClickListener {
                 onItemClick?.invoke(zone)
             }

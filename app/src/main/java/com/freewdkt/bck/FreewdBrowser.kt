@@ -1,25 +1,15 @@
 package com.freewdkt.bck
 
 import android.os.Bundle
-import android.view.View
+import android.webkit.WebChromeClient
+import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.recyclerview.widget.LinearLayoutManager
-import coil.load
-import coil.transform.RoundedCornersTransformation
-import com.freewdkt.bck.adapter.ReplyAdapter
-import com.freewdkt.bck.data.PostDetail
-import com.freewdkt.bck.data.PostDetailRequest
 import com.freewdkt.bck.databinding.ActivityFreewdBrowserBinding
-import com.freewdkt.bck.databinding.ActivityPostDetailsBinding
 import com.freewdkt.bck.requestconstants.ApiConstants
-import com.google.android.material.imageview.ShapeableImageView
-import io.noties.markwon.Markwon
 
 class FreewdBrowser : AppCompatActivity() {
     private lateinit var binding: ActivityFreewdBrowserBinding
@@ -31,15 +21,12 @@ class FreewdBrowser : AppCompatActivity() {
         binding = ActivityFreewdBrowserBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // 可选：设置 Toolbar 并支持返回
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         // 获取链接
         val link = intent.getStringExtra("link") ?: ApiConstants.BASE_URL
-
-        // 处理系统栏边距
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
 
         // 配置 WebView
         binding.browser.apply {
@@ -50,8 +37,31 @@ class FreewdBrowser : AppCompatActivity() {
                 useWideViewPort = true
             }
             webViewClient = WebViewClient()
+
+            // 添加进度监听
+            webChromeClient = object : WebChromeClient() {
+                override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                    super.onProgressChanged(view, newProgress)
+                    if (newProgress == 100) {
+                        // 加载完成，隐藏进度条
+                        binding.progressBar.visibility = android.view.View.GONE
+                    } else {
+                        // 加载中，显示进度条并更新进度
+                        if (binding.progressBar.visibility != android.view.View.VISIBLE) {
+                            binding.progressBar.visibility = android.view.View.VISIBLE
+                        }
+                        binding.progressBar.progress = newProgress
+                    }
+                }
+            }
+
             loadUrl(link)
         }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
     }
 
     override fun onDestroy() {
@@ -63,4 +73,3 @@ class FreewdBrowser : AppCompatActivity() {
         super.onDestroy()
     }
 }
-

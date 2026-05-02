@@ -10,8 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import coil.load
-import coil.transform.RoundedCornersTransformation
+import com.bumptech.glide.Glide
 import com.freewdkt.bck.databinding.ActivityMainBinding
 import com.freewdkt.bck.requestconstants.ApiConstants
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -57,9 +56,10 @@ class MainActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val input = s?.toString() ?: ""
                 if (input.isNotEmpty()) {
-                    binding.iconImage.load(ApiConstants.userIcon(input)) {
-                        transformations(RoundedCornersTransformation(500f))
-                    }
+                    Glide.with(binding.iconImage)
+                        .load(ApiConstants.userIcon(input))
+                        .into(binding.iconImage)
+
                 } else {
                     binding.iconImage.setImageResource(R.mipmap.icon)
                 }

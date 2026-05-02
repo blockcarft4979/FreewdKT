@@ -16,12 +16,18 @@
     public static *** e(...);
 }
 
-# 保留你的 Application 类（已添加）
+# 保留 Application 类
 -keep class com.freewdkt.bck.MyApplication { *; }
 
 # ========== 关键：保留所有数据类（Gson 需要） ==========
 -keep class com.freewdkt.bck.data.** { *; }
--keepclassmembers class com.freewdkt.bck.data.** { <init>(); }
+-keepclassmembers class com.freewdkt.bck.data.** {
+    # 保留所有构造函数（包括带参数的、默认的、Kotlin 生成的）
+    public <init>(...);
+    public <init>();
+    # 保留伴生对象（如果有）
+    *** Companion;
+}
 
 # 保留 Gson 需要的泛型签名和注解
 -keepattributes Signature
@@ -29,15 +35,25 @@
 -keep class com.google.gson.reflect.TypeToken { *; }
 -keep class * extends com.google.gson.reflect.TypeToken
 
-# 保留 Kotlin 元数据（data class 等）
+# 保留 Kotlin 元数据和内部类
 -keep class kotlin.Metadata { *; }
+-keepclassmembers class kotlin.Metadata {
+    public *;
+}
 
-# 保留内部类的默认构造函数（Gson 需要）
+# 保留所有内部类的默认构造函数
 -keepclassmembers class * {
     public <init>();
 }
 
-# 如果你使用了 OkHttp，建议添加以下规则（通常依赖自带，但安全起见）
+# ========== 保留所有枚举（Gson 可能用到） ==========
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+# ========== 第三方库规则 ==========
+# OkHttp
 -dontwarn okhttp3.**
 -dontwarn okio.**
 -dontwarn javax.annotation.**
@@ -47,10 +63,7 @@
 -keep interface okhttp3.** { *; }
 -dontwarn org.conscrypt.**
 
-# 如果你使用了 Coil，添加以下规则避免警告
--keep class coil.** { *; }
--dontwarn coil.**
 
-# 如果你使用了 Markwon，添加以下规则
+# Markwon
 -keep class io.noties.markwon.** { *; }
 -dontwarn io.noties.markwon.**

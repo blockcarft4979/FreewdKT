@@ -19,6 +19,8 @@ object PrivateApi {
     var LOGIN_URL = "${BASE_URL}/login.php"
     var VERIFY_TOKEN = "${BASE_URL}/verify_token.php"
     var UPLOAD_URL = "${BASE_URL}/upload.php"
+    val UPLOAD_IMG = "${BASE_URL}/img_upload/img_upload.php"
+    val SEND_COMMENT_URL = "$BASE_URL/send_comment.php"
     fun postListUrl(zone: String): String {
         return "${BASE_URL}/get_posts.php?zone=${zone}"
     }

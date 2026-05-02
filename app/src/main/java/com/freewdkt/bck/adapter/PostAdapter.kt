@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
+import com.bumptech.glide.Glide
 import com.freewdkt.bck.data.Post
 import com.freewdkt.bck.databinding.ItemPostBinding
 import com.freewdkt.bck.requestconstants.ApiConstants
@@ -48,7 +48,9 @@ class PostAdapter : ListAdapter<Post, PostAdapter.ViewHolder>(PostDiffCallback()
             } else {
                 binding.title.visibility = View.GONE
             }
-            binding.avatar.load(ApiConstants.userIcon(post.qq))
+            Glide.with(binding.avatar)
+                .load(ApiConstants.userIcon(post.qq))
+                .into(binding.avatar)
             binding.content.text = post.msg
         }
     }

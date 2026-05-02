@@ -21,8 +21,8 @@
             android:layout_height="64dp"
             android:layout_gravity="center"
             android:layout_marginTop="32dp"
-            app:shapeAppearanceOverlay="@style/RoundedImageView"
-            android:src="@mipmap/icon" />
+            android:src="@mipmap/icon"
+            app:shapeAppearanceOverlay="@style/CircleImageView"/>
 
         <TextView
             android:id="@+id/welcomeText"

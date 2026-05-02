@@ -4,14 +4,12 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.freewdkt.bck.databinding.ActivityUserAgreementBinding
 import com.freewdkt.bck.requestconstants.ApiConstants
 import com.google.android.material.snackbar.Snackbar
 import io.noties.markwon.Markwon
 import io.noties.markwon.ext.tables.TablePlugin
-import io.noties.markwon.image.coil.CoilImagesPlugin
+import io.noties.markwon.image.glide.GlideImagesPlugin
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -36,7 +34,7 @@ class UserAgreementActivity : AppCompatActivity() {
         // 先初始化 Markwon（表格+图片插件）
         markwon = Markwon.builder(this)
             .usePlugin(TablePlugin.create(this))
-            .usePlugin(CoilImagesPlugin.create(this))
+            .usePlugin(GlideImagesPlugin.create(this))
             .build()
 
         fetchUserAgreement()

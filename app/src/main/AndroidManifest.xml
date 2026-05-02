@@ -19,6 +19,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="33">
         <activity
+            android:name=".PictureView"
+            android:exported="false" />
+        <activity
             android:name=".CreatePostActivity"
             android:exported="false" />
         <activity
@@ -38,12 +41,14 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
-                    android:scheme="freewd"
                     android:host="open_post"
-                    android:pathPrefix="/path" />
+                    android:pathPrefix="/path"
+                    android:scheme="freewd" />
             </intent-filter>
         </activity>
         <activity
