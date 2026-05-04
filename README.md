@@ -1,6 +1,6 @@
-# Freewd 社区Kotlin edition(1.0.7)
+# Freewd 社区Kotlin edition(1.1.0)
 
-> 此版本为测试版
+> 此版本面前为测试版
 > 以后开发将以Kotlin版为主
 > 目前完整功能请查看[Freewd 社区](https://github.com/blockcarft4979/freewd_community)
 
@@ -18,10 +18,14 @@
 
 6.支持从外部打开帖子
 
+7.回复功能
+
+8.上传图片功能（测试）
+
 ---
 一位高中生的作品
 
 项目于2025年8月16日启动，开发超过150个版本的结绳版（Java）Freewd社区即将停止更新，现在已将开发重心放在Kotlin版，打造一个更加现代化的社区APP
 
 ___
-Copyright 2025-2026 BLOCKCARFT4979
+Copyright 2025-2026 Freewd 丨BLOCKCARFT4979
