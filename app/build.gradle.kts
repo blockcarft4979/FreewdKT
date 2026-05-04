@@ -20,8 +20,8 @@ android {
         applicationId = "com.freewdkt.bck"
         minSdk = 26
         targetSdk = 35
-        versionCode = 109
-        versionName = "1.0.9"
+        versionCode = 110
+        versionName = "1.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -33,7 +33,7 @@ android {
             // 必须同时开启代码混淆和资源压缩
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"   // 确保文件名正确
+                "proguard-rules.pro"
             )
         }
         // 为了 debug 方便，debug 模式可以不开混淆

@@ -54,4 +54,7 @@
     <string name="making">正在制作中</string>
     <string name="close">关闭</string>
     <string name="unknown_error">未知错误</string>
+    <string name="input_comment">输入评论</string>
+    <string name="send">发送</string>
+    <string name="post_comment">发表评论</string>
 </resources>

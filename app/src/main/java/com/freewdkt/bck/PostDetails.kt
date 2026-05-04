@@ -21,6 +21,7 @@ import com.freewdkt.bck.data.SendCommentRequest
 import com.freewdkt.bck.databinding.ActivityPostDetailsBinding
 import com.freewdkt.bck.requestconstants.ApiConstants
 import com.freewdkt.bck.requestconstants.PrivateApi
+import com.freewdkt.bck.ui.dialog.CommentBottomSheetDialog
 import com.freewdkt.bck.utils.formatRelativeTime
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.imageview.ShapeableImageView
@@ -222,67 +223,64 @@ class PostDetails : AppCompatActivity() {
         startActivity(intent)
     }
 
-    /**
-     * 弹出评论对话框，发送成功后直接插入新评论到列表顶部
-     */
+   
     private fun showCommentDialog() {
-        val editText = EditText(this)
-        editText.hint = "输入评论"
-        MaterialAlertDialogBuilder(this)
-            .setTitle("发表评论")
-            .setView(editText)
-            .setPositiveButton("发送") { _, _ ->
-                val content = editText.text.toString().trim()
-                if (content.isEmpty()) {
-                    Toast.makeText(this, "评论不能为空", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-                val token = MyApplication.sessionManager.getToken()
-                if (token.isNullOrEmpty()) {
-                    Toast.makeText(this, R.string.please_login, Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, MainActivity::class.java))
-                    return@setPositiveButton
-                }
+        val dialog = CommentBottomSheetDialog()
+        dialog.setOnCommentSendListener { content ->
+            sendComment(content)
+        }
+        dialog.show(supportFragmentManager, "CommentBottomSheet")
+    }
 
-                SendCommentRequest(applicationContext).sendComment(
-                    fileName = filename,
-                    zone = zoneId.toInt(),
-                    content = content,
-                    replyTo = null,
-                    token = token
-                ) { success, msg ->
-                    runOnUiThread {
-                        if (success) {
-                            Toast.makeText(this, "评论成功", Toast.LENGTH_SHORT).show()
-                            // 构造新评论对象
-                            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                            val now = sdf.format(Date())
-                            val currentQQ = MyApplication.sessionManager.getQq() ?: ""
-                            val currentName = MyApplication.sessionManager.getUsername() ?: currentQQ
-                            val newReply = Reply(
-                                qq = currentQQ,
-                                date = now,
-                                content = content,
-                                username = currentName,
-                                trueQq = currentQQ,
-                                reply = null
-                            )
-                            // 获取当前评论列表并插入头部
-                            val oldList = currentDetail?.reply?.toMutableList() ?: mutableListOf()
-                            oldList.add(0, newReply)
-                            replyAdapter.submitList(oldList)
-                            // 滑动到顶部显示新评论
-                            binding.recyclerView.smoothScrollToPosition(0)
-                            // 可选：更新 currentDetail 中的 reply 列表，保持一致性
-                            currentDetail = currentDetail?.copy(reply = oldList)
-                        } else {
-                            Toast.makeText(this, msg ?: "评论失败", Toast.LENGTH_SHORT).show()
-                        }
-                    }
+    private fun sendComment(content: String) {
+        val token = MyApplication.sessionManager.getToken()
+        if (token.isNullOrEmpty()) {
+            Toast.makeText(this, R.string.please_login, Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, MainActivity::class.java))
+            return
+        }
+
+        // 显示加载进度（如果希望有提示）
+        binding.loadingProgress.visibility = View.VISIBLE
+
+        SendCommentRequest(applicationContext).sendComment(
+            fileName = filename,
+            zone = zoneId.toInt(),
+            content = content,
+            replyTo = null,
+            token = token
+        ) { success, msg ->
+            runOnUiThread {
+                binding.loadingProgress.visibility = View.GONE
+                if (success) {
+                    Toast.makeText(this, getString(R.string.upload_succeed), Toast.LENGTH_SHORT).show()
+
+                    // 构造新评论对象
+                    val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                    val now = sdf.format(Date())
+                    val currentQQ = MyApplication.sessionManager.getQq() ?: ""
+                    val currentName = MyApplication.sessionManager.getUsername() ?: currentQQ
+
+                    val newReply = Reply(
+                        qq = currentQQ,
+                        date = now,
+                        content = content,
+                        username = currentName,
+                        trueQq = currentQQ,
+                        reply = null
+                    )
+
+                    val oldList = currentDetail?.reply?.toMutableList() ?: mutableListOf()
+                    oldList.add(0, newReply)
+                    replyAdapter.submitList(oldList)
+                    binding.recyclerView.smoothScrollToPosition(0)
+
+                    currentDetail = currentDetail?.copy(reply = oldList)
+                } else {
+                    Toast.makeText(this, msg ?: getString(R.string.upload_failed), Toast.LENGTH_SHORT).show()
                 }
             }
-            .setNegativeButton("取消", null)
-            .show()
+        }
     }
 
     private fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()
