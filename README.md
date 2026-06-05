@@ -1,4 +1,4 @@
-# Freewd 社区Kotlin edition(1.1.0)
+# （停更）Freewd 社区Kotlin edition(1.1.0)
 
 > 此版本面前为测试版
 > 以后开发将以Kotlin版为主
