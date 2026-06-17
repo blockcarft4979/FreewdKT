@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -71,9 +71,14 @@ class MainActivity : AppCompatActivity() {
         // 点击复选框跳转用户协议
         binding.agreeBox.setOnClickListener {
             if (binding.agreeBox.isChecked) {
-                val intent = Intent(this, UserAgreementActivity::class.java)
+                val intent = Intent(this, AboutActivity::class.java)
                 startActivity(intent)
             }
+        }
+
+        // 注册按钮
+        binding.registerButton.setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java))
         }
 
         // 登录按钮点击事件
@@ -94,7 +99,8 @@ class MainActivity : AppCompatActivity() {
                                 uid = loginResponse.uid ?: 0,
                                 username = loginResponse.username ?: "",
                                 xp = loginResponse.xp ?: 0,
-                                qq = binding.accountEdit.text.toString()
+                                qq = binding.accountEdit.text.toString(),
+                                checkingDays = loginResponse.checkin_days ?:0
                             )
                             //Toast.makeText(this@MainActivity, "登录成功", Toast.LENGTH_SHORT).show()
                             // 跳转到主页（示例）

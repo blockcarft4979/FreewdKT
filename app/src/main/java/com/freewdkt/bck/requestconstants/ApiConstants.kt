@@ -4,13 +4,17 @@ package com.freewdkt.bck.requestconstants
 object ApiConstants {
     const val BASE_URL = "https://f2.freewd.top/"
     const val BASE_REQUEST_URL = "${BASE_URL}app/api"
-    const val USER_AGREEMENT = "${BASE_URL}documents/user_agreement.txt"
+    //const val USER_AGREEMENT = "${BASE_URL}documents/user_agreement.txt"
     const val UPLOAD_IMG = "https://photo.freewd.top/"
     const val ZONE_DATA = "$BASE_REQUEST_URL/zone.json"
     const val POST_ERROR = "$BASE_REQUEST_URL/error.json"
     fun userIcon(id: String): String {
         return "https://q.qlogo.cn/headimg_dl?dst_uin=${id}&spec=100"
     }
+    const val UPDATE_LOG_URL = "$BASE_REQUEST_URL/updatelog.txt"
+    const val USER_AGREEMENT_URL ="$BASE_URL/documents/user_agreement.txt"
+    const val PRIVACY_POLICY_URL ="$BASE_URL/documents/privacy_policy.txt"
+
 }
 
 object PrivateApi {
@@ -28,4 +32,12 @@ object PrivateApi {
     fun postDetailUrl(filename: String, zoneId: String): String {
         return "${BASE_URL}/get_post.php?filename=${filename}&zone=${zoneId}"
     }
+
+    val LIKE_POST_URL = "$BASE_URL/like_post.php"
+    val SEND_CODE_URL = "$BASE_URL/send_code.php"
+    val REGISTER_URL = "$BASE_URL/register.php"
+    val UNREAD_COUNT_URL = "$BASE_URL/notify/get_unread_count.php"
+
+    val NOTIFICATION_LIST_URL = "$BASE_URL/notify/get_notifications.php"
+    val CHECKIN_URL = "$BASE_URL/checkin.php"
 }

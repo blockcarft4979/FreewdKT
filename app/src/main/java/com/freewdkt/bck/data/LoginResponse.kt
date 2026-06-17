@@ -77,8 +77,8 @@ data class LoginResponse(
     val username: String? = null,
     val xp: Int? = null,
     val lastCheckingDay: String? = null,
-    val checkingDays: Int? = null,
-    val expiresIn: Int? = null
+    val checkin_days: Int? = null,
+    val expires_in: Int? = null
 )
 
 fun verifyToken(context: Context, token : String?,callback: (isValid: Boolean, isNetworkError: Boolean,username: String?, message: String?) -> Unit) {

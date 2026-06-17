@@ -19,6 +19,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="33">
         <activity
+            android:name=".NotificationActivity"
+            android:exported="false" />
+        <activity
             android:name=".PictureView"
             android:exported="false" />
         <activity
@@ -61,7 +64,14 @@
             android:name=".HomeActivity"
             android:exported="false" />
         <activity
-            android:name=".UserAgreementActivity"
+            android:name=".AboutActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".UserCenterActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

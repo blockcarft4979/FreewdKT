@@ -1,10 +1,10 @@
 package com.freewdkt.bck
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
+import android.util.Log
+import android.util.TypedValue
 import android.view.View
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.freewdkt.bck.adapter.ReplyAdapter
+import com.freewdkt.bck.data.LikePostRequest
 import com.freewdkt.bck.data.PostDetail
 import com.freewdkt.bck.data.PostDetailRequest
 import com.freewdkt.bck.data.Reply
@@ -23,13 +24,13 @@ import com.freewdkt.bck.requestconstants.ApiConstants
 import com.freewdkt.bck.requestconstants.PrivateApi
 import com.freewdkt.bck.ui.dialog.CommentBottomSheetDialog
 import com.freewdkt.bck.utils.formatRelativeTime
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.imageview.ShapeableImageView
 import io.noties.markwon.Markwon
 import io.noties.markwon.ext.tables.TablePlugin
 import io.noties.markwon.image.glide.GlideImagesPlugin
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class PostDetails : AppCompatActivity() {
     private lateinit var binding: ActivityPostDetailsBinding
@@ -41,6 +42,8 @@ class PostDetails : AppCompatActivity() {
     private var zoneId: String = "1"
     private var filename: String = ""
     private var currentDetail: PostDetail? = null
+    private var isCurrentlyLiked = false
+    private var isLiking = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -67,10 +70,15 @@ class PostDetails : AppCompatActivity() {
 
         // 加载详情
         loadPostDetail(currentUrl)
-
+Log.d("woSHIurl",getPostUrl(intent) ?: return)
         // 悬浮按钮点击 → 发表评论
         binding.fab.setOnClickListener {
             showCommentDialog()
+        }
+
+        // 点赞栏点击
+        binding.likeBar.setOnClickListener {
+            likePost()
         }
     }
 
@@ -113,7 +121,8 @@ class PostDetails : AppCompatActivity() {
                 }
             }
         }
-        val url = intent.getStringExtra("url")?.takeIf { it.isNotBlank() } ?: ApiConstants.POST_ERROR
+        val url =
+            intent.getStringExtra("url")?.takeIf { it.isNotBlank() } ?: ApiConstants.POST_ERROR
         return if (url.startsWith("http://") || url.startsWith("https://")) url else null
     }
 
@@ -121,8 +130,9 @@ class PostDetails : AppCompatActivity() {
      * 加载帖子详情（支持 fallback 备用数据）
      */
     private fun loadPostDetail(url: String) {
+        val token = MyApplication.sessionManager.getToken()
         binding.loadingProgress.visibility = View.VISIBLE
-        PostDetailRequest(applicationContext).fetchPostDetail(url) { detail, error ->
+        PostDetailRequest(applicationContext).fetchPostDetail(url,token) { detail, error ->
             runOnUiThread {
                 binding.loadingProgress.visibility = View.GONE
                 if (error != null) {
@@ -161,6 +171,11 @@ class PostDetails : AppCompatActivity() {
         } else {
             binding.title.visibility = View.GONE
         }
+//        if (detail.isLiked) {
+//            binding.likeIcon.setImageResource(R.drawable.liked)
+//        } else {
+//            binding.likeIcon.setImageResource(R.drawable.like)
+//        }
 
         // 正文（支持 Markdown）
         val message = detail.msg ?: ""
@@ -173,6 +188,14 @@ class PostDetails : AppCompatActivity() {
         binding.username.text = detail.username
         binding.date.text = formatRelativeTime(detail.date)
         binding.likeCount.text = detail.likeCount
+
+        // 初始化点赞状态
+        isCurrentlyLiked = detail.isLiked
+        if (isCurrentlyLiked) {
+            binding.likeIcon.setImageResource(R.drawable.liked)
+        } else {
+            binding.likeIcon.setImageResource(R.drawable.like)
+        }
 
         // AI 总结
         if (!detail.aiSummary.isNullOrEmpty()) {
@@ -223,7 +246,7 @@ class PostDetails : AppCompatActivity() {
         startActivity(intent)
     }
 
-   
+
     private fun showCommentDialog() {
         val dialog = CommentBottomSheetDialog()
         dialog.setOnCommentSendListener { content ->
@@ -253,7 +276,8 @@ class PostDetails : AppCompatActivity() {
             runOnUiThread {
                 binding.loadingProgress.visibility = View.GONE
                 if (success) {
-                    Toast.makeText(this, getString(R.string.upload_succeed), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.upload_succeed), Toast.LENGTH_SHORT)
+                        .show()
 
                     // 构造新评论对象
                     val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
@@ -277,11 +301,89 @@ class PostDetails : AppCompatActivity() {
 
                     currentDetail = currentDetail?.copy(reply = oldList)
                 } else {
-                    Toast.makeText(this, msg ?: getString(R.string.upload_failed), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        msg ?: getString(R.string.upload_failed),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
     }
+
+    /**
+     * 点赞 / 取消点赞
+     */
+    private fun likePost() {
+        if (isLiking) return
+        val token = MyApplication.sessionManager.getToken()
+        if (token.isNullOrEmpty()) {
+            Toast.makeText(this, R.string.please_login, Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, MainActivity::class.java))
+            return
+        }
+
+        binding.likeIcon.animate()
+            .scaleX(1.2f)
+            .scaleY(1.2f)
+            .setDuration(150)
+            .withEndAction {
+                binding.likeIcon.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(150)
+                    .start()
+            }
+            .start()
+
+        isLiking = true
+
+        // 立即更新 UI
+        val oldCount = binding.likeCount.text.toString().toIntOrNull() ?: 0
+        if (isCurrentlyLiked) {
+            // 当前已点赞 → 取消
+            binding.likeIcon.setImageResource(R.drawable.like)
+            binding.likeCount.text = (oldCount - 1).toString()
+        } else {
+            // 当前未点赞 → 点赞
+            binding.likeIcon.setImageResource(R.drawable.liked)
+            binding.likeCount.text = (oldCount + 1).toString()
+        }
+
+        LikePostRequest(applicationContext).likePost(
+            filename = filename,
+            zone = zoneId.toInt(),
+            token = token
+        ) { success, isLiked, likeCount, msg ->
+            runOnUiThread {
+                isLiking = false
+                if (success && isLiked != null && likeCount != null) {
+                    isCurrentlyLiked = isLiked
+                    binding.likeCount.text = likeCount.toString()
+                    if (isLiked) {
+                        binding.likeIcon.setImageResource(R.drawable.liked)
+                    } else {
+                        binding.likeIcon.setImageResource(R.drawable.like)
+                    }
+                    currentDetail = currentDetail?.copy(likeCount = likeCount.toString())
+                } else {
+                    // 失败时回滚 UI
+                    binding.likeCount.text = oldCount.toString()
+                    if (isCurrentlyLiked) {
+                        binding.likeIcon.setImageResource(R.drawable.liked)
+                    } else {
+                        binding.likeIcon.setImageResource(R.drawable.like)
+                    }
+                    Toast.makeText(
+                        this,
+                        msg ?: getString(R.string.upload_failed),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
 
     private fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()
 }

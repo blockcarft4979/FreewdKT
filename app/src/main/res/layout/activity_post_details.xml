@@ -27,6 +27,7 @@
         android:layout_height="match_parent"
         android:fillViewport="true"
         android:visibility="invisible"
+        android:clipChildren="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -132,9 +133,13 @@
 
             <!-- 点赞栏 -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/likeBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="1dp"
                 app:cardBackgroundColor="?attr/colorSurface">
@@ -144,19 +149,21 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:padding="16dp"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    android:clipChildren="false">
 
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/favorite"
+                        android:id="@+id/likeIcon"
+                        android:layout_width="27dp"
+                        android:layout_height="27dp"
+                        android:padding="3dp"
                         app:tint="?attr/colorPrimary" />
 
                     <TextView
                         android:id="@+id/likeCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
+                        android:layout_marginStart="2dp"
                         android:text="0"
                         android:textSize="14sp"
                         android:textColor="?attr/colorOnSurface" />

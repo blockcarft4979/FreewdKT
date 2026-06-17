@@ -1,6 +1,7 @@
 package com.freewdkt.bck.data
 
 import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.internal.MapLikeSerializer
 
 data class PostDetail(
     @SerializedName("img")
@@ -17,6 +18,8 @@ data class PostDetail(
     val aiSummary: String? = null,
     @SerializedName("is_markdown")
     val isMarkdown: Boolean,
+    @SerializedName("likes_flag")
+    val isLiked: Boolean
 ) {
     val imageList: List<String>
         get() = when (img) {

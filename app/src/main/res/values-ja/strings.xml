@@ -29,7 +29,7 @@
     <string name="post_new_post">新しい投稿を作成</string>
     <string name="ai_summary">AI のまとめ</string>
     <string name="comment">コメント</string>
-    <string name="reply">@ に返信</string>
+    <string name="reply">/@ に返信</string>
     <string name="menu">メニュー</string>
     <string name="freewd_uid">Freewd UID: </string>
     <string name="about">について</string>

@@ -10,9 +10,12 @@ import java.io.IOException
 class PostDetailRequest(private val context: Context) {
     private val client = OkHttpClient()
 
-    fun fetchPostDetail(url: String, callback: (PostDetail?, String?) -> Unit) {
-
-        val request = Request.Builder().url(url).get().build()
+    fun fetchPostDetail(url: String, token: String?, callback: (PostDetail?, String?) -> Unit) {
+        val builder = Request.Builder().url(url)
+        if (!token.isNullOrEmpty()) {
+            builder.addHeader("Authorization", "Bearer $token")
+        }
+        val request = builder.build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -22,7 +25,6 @@ class PostDetailRequest(private val context: Context) {
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
                     val json = response.body?.string()
-                    //Log.d("woshiData",json.toString())
                     if (json != null) {
                         val detail = Gson().fromJson(json, PostDetail::class.java)
                         callback(detail, null)

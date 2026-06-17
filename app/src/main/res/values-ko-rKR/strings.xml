@@ -29,7 +29,7 @@
     <string name="post_new_post">새 게시물 작성</string>
     <string name="ai_summary">AI 요약</string>
     <string name="comment">댓글</string>
-    <string name="reply">@ 에게 답글</string>
+    <string name="reply">/@ 에게 답글</string>
     <string name="menu">메뉴</string>
     <string name="freewd_uid">Freewd UID: </string>
     <string name="about">정보</string>

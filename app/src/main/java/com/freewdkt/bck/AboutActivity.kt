@@ -16,7 +16,7 @@ import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 
-class UserAgreementActivity : AppCompatActivity() {
+class AboutActivity : AppCompatActivity() {
     val client = okhttp3.OkHttpClient()
     private lateinit var binding: ActivityUserAgreementBinding
 
@@ -30,20 +30,20 @@ class UserAgreementActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
+        val loadUrl = intent.getStringExtra("loadUrl")?: ApiConstants.USER_AGREEMENT_URL
         // 先初始化 Markwon（表格+图片插件）
         markwon = Markwon.builder(this)
             .usePlugin(TablePlugin.create(this))
             .usePlugin(GlideImagesPlugin.create(this))
             .build()
 
-        fetchUserAgreement()
+        fetchData(loadUrl)
     }
 
-    private fun fetchUserAgreement() {
+    private fun fetchData(loadUrl: String) {
         binding.loadingProgress.visibility = View.VISIBLE
         val request = Request.Builder()
-            .url(ApiConstants.USER_AGREEMENT)
+            .url(loadUrl)
             .build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -51,9 +51,13 @@ class UserAgreementActivity : AppCompatActivity() {
                 e.printStackTrace()
                 runOnUiThread {
                     binding.loadingProgress.visibility = View.GONE
-                    Snackbar.make(binding.root, getString(R.string.load_fail), Snackbar.LENGTH_INDEFINITE)
+                    Snackbar.make(
+                        binding.root,
+                        getString(R.string.load_fail),
+                        Snackbar.LENGTH_INDEFINITE
+                    )
                         .setAction(getString(R.string.retry)) {
-                            fetchUserAgreement()
+                            fetchData(loadUrl)
                             binding.loadingProgress.visibility = View.VISIBLE
                         }
                         .show()

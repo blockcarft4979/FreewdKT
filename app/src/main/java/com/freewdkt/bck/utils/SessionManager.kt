@@ -1,11 +1,9 @@
 package com.freewdkt.bck.utils
 
-import android.R
 import android.content.Context
+import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 class SessionManager(private val context: Context) {
 
@@ -22,14 +20,21 @@ class SessionManager(private val context: Context) {
     )
 
     // 保存登录信息
-    fun saveUserSession(token: String, uid: Int, username: String, xp: Int,qq: String) {
-        with(sharedPreferences.edit()) {
+    fun saveUserSession(
+        token: String,
+        uid: Int,
+        username: String,
+        xp: Int,
+        qq: String,
+        checkingDays: Int
+    ) {
+        sharedPreferences.edit {
+            putInt("checkingDays", checkingDays)
             putString("token", token)
             putInt("uid", uid)
             putString("username", username)
             putInt("xp", xp)
-            putString("qq",qq)
-            apply()
+            putString("qq", qq)
         }
     }
 
@@ -45,18 +50,27 @@ class SessionManager(private val context: Context) {
     // 获取 xp
     fun getXp(): Int = sharedPreferences.getInt("xp", 0)
 
-    fun getQq(): String? = sharedPreferences.getString("qq",null)
+    fun getQq(): String? = sharedPreferences.getString("qq", null)
+
     // 判断是否已登录
     fun isLoggedIn(): Boolean = getToken() != null
-    fun updateXp(xp: String){
-        sharedPreferences.edit().putString("xp",xp).apply()
+    fun updateXp(xp: String) {
+        sharedPreferences.edit { putString("xp", xp) }
     }
+
+    fun getCheckInDays(): Int = sharedPreferences.getInt("checkingDays", 0)
+
+    fun updateCheckInDays(days: Int) {
+        sharedPreferences.edit { putInt("checkingDays", days) }
+    }
+
     fun updateUsername(newUsername: String) {
-        sharedPreferences.edit().putString("username", newUsername).apply()
+        sharedPreferences.edit { putString("username", newUsername) }
     }
+
     // 清除所有用户信息（登出）
     fun clear() {
-        sharedPreferences.edit().clear().apply()
+        sharedPreferences.edit { clear() }
     }
 
 }
