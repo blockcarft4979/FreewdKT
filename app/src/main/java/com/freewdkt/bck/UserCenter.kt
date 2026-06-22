@@ -93,6 +93,11 @@ fun UserCenterLayout() {
     val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(false) }
 
+    // 签到状态：检查今天是否已经签过到
+    val prefs = context.getSharedPreferences("freewd_checkin", Context.MODE_PRIVATE)
+    val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+    var isCheckedInToday by remember { mutableStateOf(prefs.getString("last_checkin_date", "") == today) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -201,14 +206,21 @@ fun UserCenterLayout() {
                     ) {
                         SettingsItem(
                             painterResource(R.drawable.mdicalendarcheck),
-                            title = stringResource(R.string.checked).replace(
-                                "?%",
-                                MyApplication.sessionManager.getCheckInDays().toString()
-                            ),
-                            description = "",
+                            title = if (isCheckedInToday) {
+                                "今日已签到（${MyApplication.sessionManager.getCheckInDays()}天）"
+                            } else {
+                                stringResource(R.string.checked).replace(
+                                    "?%",
+                                    MyApplication.sessionManager.getCheckInDays().toString()
+                                )
+                            },
+                            description = if (isCheckedInToday) "明天再来吧～" else "",
                             onClick = {
-                                // 开始签到，显示加载对话框
-                                /*scope.launch {
+                                if (isCheckedInToday) {
+                                    Toast.makeText(context, "今天已经签到啦，明天再来吧～", Toast.LENGTH_SHORT).show()
+                                    return@SettingsItem
+                                }
+                                scope.launch {
                                     isLoading = true
                                     try {
                                         val token = MyApplication.sessionManager.getToken()
@@ -224,6 +236,10 @@ fun UserCenterLayout() {
                                         if (days.isNotEmpty()) {
                                             Log.d("woShiDAYS", days)
                                             MyApplication.sessionManager.updateCheckInDays(days.toIntOrNull() ?: 0)
+                                            // 保存签到日期到本地
+                                            prefs.edit().putString("last_checkin_date", today).apply()
+                                            isCheckedInToday = true
+                                            Toast.makeText(context, "签到成功！连续签到 $days 天", Toast.LENGTH_SHORT).show()
                                         } else {
                                             Toast.makeText(
                                                 context,
@@ -232,11 +248,11 @@ fun UserCenterLayout() {
                                             ).show()
                                         }
                                     } catch (e: Exception) {
-                                      
+                                        Toast.makeText(context, "签到失败", Toast.LENGTH_SHORT).show()
                                     } finally {
                                         isLoading = false
                                     }
-                                }*/
+                                }
                             }
                         )
                     }
@@ -296,18 +312,25 @@ fun UserCenterLayout() {
             onDismissRequest = { }, // 禁止点击外部关闭
             confirmButton = {},
             dismissButton = {},
-            title = { Text(text = "提示") },
+            title = {},
             text = {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(16.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(48.dp),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = "签到中，请稍候...")
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(48.dp),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(text = "签到中，请稍候...")
+                    }
                 }
             },
             containerColor = MaterialTheme.colorScheme.surface,
@@ -319,14 +342,6 @@ fun UserCenterLayout() {
     }
 }
 
-/**
- * 挂起函数：执行签到请求
- * 需要在协程作用域中调用（如 lifecycleScope.launch）
- * @param context Context 用于显示 Toast
- * @param token  Bearer Token（不含前缀）
- * @return 签到成功后返回 checkin_days 字段，失败或状态非success返回空字符串
- * @throws IOException 网络或HTTP错误时抛出
- */
 suspend fun checkInRequestSuspend(context: Context, token: String?): String {
     if (token.isNullOrBlank()) {
         return ""
