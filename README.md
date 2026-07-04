@@ -1,5 +1,8 @@
 # （停更）Freewd 社区Kotlin edition(1.1.0)
 
+虽然没什么人用，快一年了，该在的人都不在了，开着有啥用，就到此为止吧
+一年78人，感谢您的支持和理解，Freewd 社区将于7月13日正式下线，以后有缘再见，Freewd 感谢有你
+
 > 此版本面前为测试版
 > 以后开发将以Kotlin版为主
 > 目前完整功能请查看[Freewd 社区](https://github.com/blockcarft4979/freewd_community)
