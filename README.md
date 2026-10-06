@@ -1,4 +1,9 @@
-# （停更）Freewd 社区Kotlin edition(1.1.0)
+# （归档/停更/只读）Freewd 社区Kotlin edition(1.1.0)
+
+我们已用compose重构了我们的app
+此仓库已废弃
+
+新项目地址：https://github.com/blockcarft4979/Freewd
 
 虽然没什么人用，快一年了，该在的人都不在了，开着有啥用，就到此为止吧
 一年78人，感谢您的支持和理解，Freewd 社区将于7月13日正式下线，以后有缘再见，Freewd 感谢有你
@@ -38,4 +43,4 @@
 项目于2025年8月16日启动，开发超过150个版本的结绳版（Java）Freewd社区即将停止更新，现在已将开发重心放在Kotlin版，打造一个更加现代化的社区APP
 
 ___
-Copyright 2025-2026 Freewd 丨BLOCKCARFT4979
+© 2025-2026 Freewd Studio
